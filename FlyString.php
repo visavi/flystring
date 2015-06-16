@@ -14,14 +14,14 @@ class FlyString {
 	/**
 	 * @var string file name
 	 */
-	private $_file;
+	protected $_file;
 
 	/**
 	 * @var string a symbol of the division of cells
 	 */
-	private $_separator = '|';
+	protected $_separator;
 
-	public function __construct($file, $separator)
+	public function __construct($file, $separator = '|')
 	{
 		$this->_file = $file;
 		$this->_separator = $separator;
@@ -231,19 +231,6 @@ class FlyString {
 	}
 
 	/**
-	 * Clean file
-	 * @return boolean execution result
-	 */
-	public function clear()
-	{
-		if ( ! $this->exists()) return false;
-
-		$res = file_put_contents($this->_file, '');
-
-		return ($res === false) ? false : true;
-	}
-
-	/**
 	 * Formatted file size
 	 * @param  integer $decimals the number of characters after the decimal point
 	 * @return string            formatted file size
@@ -256,5 +243,18 @@ class FlyString {
 		$size = ['B','kB','MB','GB','TB'];
 		$factor = floor((strlen($bytes) - 1) / 3);
 		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+	}
+
+	/**
+	 * Clean file
+	 * @return boolean execution result
+	 */
+	public function clear()
+	{
+		if ( ! $this->exists()) return false;
+
+		$res = file_put_contents($this->_file, '');
+
+		return ($res === false) ? false : true;
 	}
 }

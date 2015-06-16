@@ -2,8 +2,8 @@
 
 include 'FlyString.php';
 
-// Pass the file name and separator
-$fly = new Visavi\FlyString('test.txt', '|');
+// Pass the file name and separator, default |
+$fly = new Visavi\FlyString('test.txt');
 
 // Checks the existence of the line returns true or false
 $string = $fly->exists();
@@ -41,8 +41,8 @@ var_dump($string);
 $string = $fly->drop([1,2]);
 var_dump($string);
 
-// Clears file
-var_dump($fly->clear());
-
 // Displays formatted file size, such as 543B, 1.43kB
 var_dump($fly->filesize());
+
+// Clears file
+var_dump($fly->clear());

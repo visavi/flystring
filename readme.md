@@ -6,11 +6,10 @@ Basic useful feature list:
  * Adding and deleting rows
  * Shift, rotation, clear and moving strings
  * Verifying the existence and size of the output file
- *
 
 ```php
 <?php
-//Pass the file name and separator
+//Pass the file name and separator, default |
 $fly = new Visavi\FlyString('test.txt', '|');
 
 //Checks the existence of the line returns true or false
@@ -40,11 +39,11 @@ $string = $fly->insert(['hello', 'world', 'test', 555, 0xd34]);
 // Deleting rows from a file, instead of an array can be passed an integer
 $string = $fly->drop([1,2]);
 
-// Clears file
-$fly->clear();
-
 // Displays formatted file size, such as 543B, 1.43kB
 $fly->filesize();
+
+// Clears file
+$fly->clear();
 ```
 
 ### Installing
