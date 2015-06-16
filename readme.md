@@ -47,6 +47,10 @@ $fly->clearFile();
 $fly->filesize(4);
 ```
 
+### Installing
+
+`composer require visavi/flystring`
+
 ### License
 
 The class is open-sourced software licensed under the [GPL-3.0 license](http://opensource.org/licenses/gpl-3.0.html)
