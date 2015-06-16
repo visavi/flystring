@@ -40,7 +40,7 @@ class FlyString {
 	 * Count lines in the file
 	 * @return integer number of lines
 	 */
-	public function countString() {
+	public function count() {
 
 		if ( ! $this->exists()) return 0;
 
@@ -53,7 +53,7 @@ class FlyString {
 	 * @param  integer $line line number (If no value is passed, the last line)
 	 * @return array         an array of string data
 	 */
-	public function readString($line = null)
+	public function read($line = null)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -76,7 +76,7 @@ class FlyString {
 	 * @param  integer $ceil   cell number
 	 * @return array           data and the line number
 	 */
-	public function searchString($search, $ceil = 0;)
+	public function search($search, $ceil = 0)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -99,7 +99,7 @@ class FlyString {
 	 * @param  array   $data dimensional array of data
 	 * @return boolean       record result
 	 */
-	public function replaceString($line = 0, array $data)
+	public function replace($line = 0, array $data)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -126,7 +126,7 @@ class FlyString {
 	 * @param  integer $line number portable line
 	 * @return boolean       execution result
 	 */
-	public function downString($line = 0)
+	public function down($line = 0)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -152,7 +152,7 @@ class FlyString {
 	 * @param  integer $where which move up 1, -1 - down
 	 * @return boolean        execution result
 	 */
-	public function shiftString($line, $where)
+	public function shift($line, $where)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -188,7 +188,7 @@ class FlyString {
 	 * @param  boolean $clear flag clean file
 	 * @return boolean        execution result
 	 */
-	public function insertString(array $data, $clear = false)
+	public function insert(array $data, $clear = false)
 	{
 		$string = implode($this->_separator, $data).$this->_separator.PHP_EOL;
 
@@ -206,7 +206,7 @@ class FlyString {
 	 * @param  mixed  $lines line number or an array of strings
 	 * @return boolean       execution result
 	 */
-	public function dropString($lines)
+	public function drop($lines)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -234,7 +234,7 @@ class FlyString {
 	 * Clean file
 	 * @return boolean execution result
 	 */
-	public function clearFile()
+	public function clear()
 	{
 		if ( ! $this->exists()) return false;
 

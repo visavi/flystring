@@ -17,34 +17,34 @@ $fly = new Visavi\FlyString('test.txt', '|');
 $string = $fly->exists();
 
 // Returns the number of lines in the file, if the file does not exist returns 0
-$string = $fly->countString();
+$string = $fly->count();
 
 // Reading the first line of the file, Default shows the last line in the file
-$string = $fly->readString(0);
+$string = $fly->read(0);
 
 // Search the data in cell number 2, it returns an array of the entire row and line number, If no number of the cell search is performed in zero cell
-$string = $fly->searchString('test', 2);
+$string = $fly->search('test', 2);
 
 // Writes a string number 5 new data
-$string = $fly->replaceString(5, ['hello', 'world', 'test', 555, 0xd34]);
+$string = $fly->replace(5, ['hello', 'world', 'test', 555, 0xd34]);
 
 // Line breaks down the file number 3, if no number is transferred to a null string
-$string = $fly->downString(3)
+$string = $fly->down(3);
 
 // Shift 7 line 1 position up, then there would be 7 line 6 and vice versa
-$string = $fly->shiftString(7, -1);
+$string = $fly->shift(7, -1);
 
 // Adding lines to the file, if the file does not exist it will be created, line is added to the file
-$string = $fly->insertString(['hello', 'world', 'test', 555, 0xd34]);
+$string = $fly->insert(['hello', 'world', 'test', 555, 0xd34]);
 
 // Deleting rows from a file, instead of an array can be passed an integer
-$string = $fly->dropString([1,2]);
+$string = $fly->drop([1,2]);
 
 // Clears file
-$fly->clearFile();
+$fly->clear();
 
-// Displays formatted file size, such as 543V, 1.4445kB
-$fly->filesize(4);
+// Displays formatted file size, such as 543B, 1.43kB
+$fly->filesize();
 ```
 
 ### Installing
