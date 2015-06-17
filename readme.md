@@ -43,7 +43,7 @@ $fly->down(3);
 $fly->shift(7, -1);
 
 // Deleting rows from a file, instead of an array can be passed an integer
-$string = $fly->delete([1,2]);
+$string = $fly->delete([1, 2]);
 
 // Displays formatted file size, such as 543B, 1.43kB
 $fly->filesize();

@@ -23,7 +23,7 @@ var_dump($string = $fly->insert([0, 'The line at the beginning of the', 'somethi
 var_dump($fly->read(0));
 
 // Search the data in cell number 2, it returns an array of the entire row and line number
-var_dump($fly->search(3, 'test'));
+var_dump($fly->search(2, 'test'));
 
 // Change the value in the line number 8 and the cell number 2
 var_dump($fly->cell(8, 2, 'new value'));
@@ -38,7 +38,7 @@ var_dump($fly->down(3));
 var_dump($fly->shift(7, -1));
 
 // Deleting rows from a file, instead of an array can be passed an integer
-var_dump($fly->delete([1,2]));
+var_dump($fly->delete([1, 2]));
 
 // Displays formatted file size, such as 543B, 1.43kB
 var_dump($fly->filesize());
