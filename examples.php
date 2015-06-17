@@ -7,6 +7,7 @@ $fly = new Visavi\FlyString('test.txt');
 
 // Checks the existence of the line returns true or false
 var_dump($fly->exists());
+
 // Returns the number of lines in the file, if the file does not exist returns 0
 var_dump($fly->count());
 
