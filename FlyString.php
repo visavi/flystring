@@ -62,7 +62,8 @@ class FlyString {
 	 */
 	public function insert(array $data, $append = true)
 	{
-		$string = implode($this->_separator, $data).$this->_separator.PHP_EOL;
+		$string = implode($this->_separator, $data);
+		$string .= $this->_end ? $this->_separator.PHP_EOL : PHP_EOL;
 
 		if ($append) {
 			$res = file_put_contents($this->_file, $string, FILE_APPEND | LOCK_EX);
@@ -165,7 +166,8 @@ class FlyString {
 		$file = file($this->_file);
 
 		if (isset($file[$line])) {
-			$file[$line] = implode($this->_separator, $data).$this->_separator.PHP_EOL;
+			$file[$line] = implode($this->_separator, $data);
+			$file[$line] .= $this->_end ? $this->_separator.PHP_EOL : PHP_EOL;
 
 			return $this->write($file);
 		}
@@ -255,7 +257,7 @@ class FlyString {
 	 * @param  integer $decimals number of characters after the decimal point
 	 * @return string            formatted file size
 	 */
-	function filesize($decimals = 2) {
+	public function filesize($decimals = 2) {
 
 		if ( ! $this->exists()) return '0B';
 

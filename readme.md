@@ -9,7 +9,7 @@ Basic useful feature list:
 
 ```php
 <?php
-//Pass the file name and separator, default |
+//Pass the file name, separator (default |), and separator line endings default false
 $fly = new Visavi\FlyString('test.txt', '|');
 
 //Checks the existence of the line returns true or false
