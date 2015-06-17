@@ -21,10 +21,16 @@ class FlyString {
 	 */
 	protected $_separator;
 
-	public function __construct($file, $separator = '|')
+	/**
+	 * @var boolean separator line endings
+	 */
+	protected $_end;
+
+	public function __construct($file, $separator = '|', $end = false)
 	{
 		$this->_file = $file;
 		$this->_separator = $separator;
+		$this->_end = $end;
 	}
 
 	/**
@@ -49,9 +55,29 @@ class FlyString {
 	}
 
 	/**
+	 * Adding a string to a file, the file is created if it does not exist
+	 * @param  array   $data   data array
+	 * @param  boolean $append add to the end or the beginning of the
+	 * @return boolean         execution result
+	 */
+	public function insert(array $data, $append = true)
+	{
+		$string = implode($this->_separator, $data).$this->_separator.PHP_EOL;
+
+		if ($append) {
+			$res = file_put_contents($this->_file, $string, FILE_APPEND | LOCK_EX);
+		} else {
+			$string .= file_get_contents($this->_file);
+			$res = file_put_contents($this->_file, $string, LOCK_EX);
+		}
+
+		return $res === false ? false : true;
+	}
+
+	/**
 	 * Reading a line from a file
 	 * @param  integer $line line number (If no value is passed, the last line)
-	 * @return array         an array of string data
+	 * @return array         an array of string data or false
 	 */
 	public function read($line = null)
 	{
@@ -60,11 +86,14 @@ class FlyString {
 		$file = file($this->_file);
 
 		if (is_null($line)) {
-			return explode($this->_separator, end($file));
+			$string = end($file);
+
+		} elseif (isset($file[$line])) {
+			$string = $file[$line];
 		}
 
-		if (isset($file[$line])) {
-			return explode($this->_separator, $file[$line]);
+		if (isset($string)) {
+			return explode($this->_separator, $this->prepare($string));
 		}
 
 		return false;
@@ -72,20 +101,23 @@ class FlyString {
 
 	/**
 	 * Search value in the cell in the file
-	 * @param  string  $search search expression
 	 * @param  integer $ceil   cell number
+	 * @param  string  $search search expression
 	 * @return array           data and the line number
 	 */
-	public function search($search, $ceil = 0)
+	public function search($ceil, $search)
 	{
 		if ( ! $this->exists()) return false;
 
 		$file = file($this->_file);
 
-		foreach($file as $key => $value) {
-			$data = explode($this->_separator, $value);
-			if ($data[$ceil] === $search) {
-				$data['line'] = $key;
+		foreach($file as $line => $value) {
+			$string = explode($this->_separator, $value);
+			if (isset($string[$ceil]) && $string[$ceil] === $search) {
+
+				$data['line'] = $line;
+				$data['data'] = explode($this->_separator, $this->prepare($file[$line]));
+
 				return $data;
 			}
 		}
@@ -94,31 +126,51 @@ class FlyString {
 	}
 
 	/**
-	 * Replacing the line in the file
-	 * @param  integer $line line number
-	 * @param  array   $data dimensional array of data
-	 * @return boolean       record result
+	 * Change the value in cell
+	 * @param  integer $line  line number
+	 * @param  integer $cell  cell number
+	 * @param  string  $value new value
+	 * @return boolean        record result
 	 */
-	public function replace($line = 0, array $data)
+	public function cell($line, $cell, $value)
 	{
 		if ( ! $this->exists()) return false;
 
 		$file = file($this->_file);
-		$fp = fopen($this->_file, "a+");
-		flock ($fp, LOCK_EX);
-		ftruncate ($fp, 0);
-		foreach($file as $key => $value) {
-			if ($line === $key) {
-				fputs($fp, implode($this->_separator, $data).$this->_separator.PHP_EOL);
-			} else {
-				fputs($fp, $value);
+
+		if (isset($file[$line])) {
+
+			$string = explode($this->_separator, $this->prepare($file[$line]));
+
+			if (isset($string[$cell])) {
+				$string[$cell] = $value;
+
+				return $this->update($line, $string);
 			}
 		}
-		fflush($fp);
-		flock ($fp, LOCK_UN);
-		fclose($fp);
 
-		return true;
+		return false;
+	}
+
+	/**
+	 * Updating the line in the file
+	 * @param  integer $line line number
+	 * @param  array   $data dimensional array of data
+	 * @return boolean       record result
+	 */
+	public function update($line = 0, array $data)
+	{
+		if ( ! $this->exists()) return false;
+
+		$file = file($this->_file);
+
+		if (isset($file[$line])) {
+			$file[$line] = implode($this->_separator, $data).$this->_separator.PHP_EOL;
+
+			return $this->write($file);
+		}
+
+		return false;
 	}
 
 	/**
@@ -132,15 +184,14 @@ class FlyString {
 
 		$file = file($this->_file);
 
-		if (count($file) > 1) {
+		if (isset($file[$line]) && count($file) > 1) {
 
-			$value = $file[$line];
+			$string = $file[$line];
 			unset($file[$line]);
-			array_push($file, $value);
 
-			file_put_contents($this->_file, $file, LOCK_EX);
+			$file[] = $string;
 
-			return true;
+			return $this->write($file);
 		}
 
 		return false;
@@ -160,45 +211,16 @@ class FlyString {
 		$file = file($this->_file);
 
 		if (isset($file[$line]) && isset($file[$line2])) {
-			$fp = fopen($this->_file, "a+");
-			flock ($fp, LOCK_EX);
-			ftruncate ($fp, 0);
-			foreach($file as $key => $val) {
-				if ($line == $key) {
-					fputs($fp, $file[$line2]);
-				} elseif ($line2 == $key) {
-					fputs($fp, $file[$line]);
-				} else {
-					fputs($fp, $val);
-				}
-			}
-			fflush($fp);
-			flock ($fp, LOCK_UN);
-			fclose($fp);
 
-			return true;
+			$string = $file[$line];
+
+			$file[$line] = $file[$line2];
+			$file[$line2] = $string;
+
+			return $this->write($file);
 		}
 
 		return false;
-	}
-
-	/**
-	 * Adding a string to a file, the file is created if it does not exist
-	 * @param  array   $data  data array
-	 * @param  boolean $clear flag clean file
-	 * @return boolean        execution result
-	 */
-	public function insert(array $data, $clear = false)
-	{
-		$string = implode($this->_separator, $data).$this->_separator.PHP_EOL;
-
-		if ($clear) {
-			$res = file_put_contents($this->_file, $string, LOCK_EX);
-		} else {
-			$res = file_put_contents($this->_file, $string, FILE_APPEND | LOCK_EX);
-		}
-
-		return ($res === false) ? false : true;
 	}
 
 	/**
@@ -206,7 +228,7 @@ class FlyString {
 	 * @param  mixed  $lines line number or an array of strings
 	 * @return boolean       execution result
 	 */
-	public function drop($lines)
+	public function delete($lines)
 	{
 		if ( ! $this->exists()) return false;
 
@@ -217,32 +239,35 @@ class FlyString {
 					unset($file[$line]);
 				}
 			}
-			$res = file_put_contents($this->_file, implode($file), LOCK_EX);
 		} else {
+
 			$file = file($this->_file);
 			if (isset($file[$lines])) {
 				unset($file[$lines]);
 			}
-			$res = file_put_contents($this->_file, implode($file), LOCK_EX);
 		}
 
-
-		return ($res === false) ? false : true;
+		return $this->write($file);
 	}
 
 	/**
 	 * Formatted file size
-	 * @param  integer $decimals the number of characters after the decimal point
+	 * @param  integer $decimals number of characters after the decimal point
 	 * @return string            formatted file size
 	 */
-	public function filesize($decimals = 2)
-	{
+	function filesize($decimals = 2) {
+
 		if ( ! $this->exists()) return '0B';
 
 		$bytes = filesize($this->_file);
-		$size = ['B','kB','MB','GB','TB'];
-		$factor = floor((strlen($bytes) - 1) / 3);
-		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+		$mod = 1000;
+
+		$size = ['B','kB','MB','GB','TB','PB'];
+		for ($i = 0; $bytes > $mod; $i++) {
+			$bytes /= $mod;
+		}
+
+		return round($bytes, $decimals).$size[$i];
 	}
 
 	/**
@@ -253,8 +278,27 @@ class FlyString {
 	{
 		if ( ! $this->exists()) return false;
 
-		$res = file_put_contents($this->_file, '');
+		return $this->write([]);
+	}
 
-		return ($res === false) ? false : true;
+	/**
+	 * handles line removes extra characters and separator
+	 * @param  string $string raw string
+	 * @return string         processed string
+	 */
+	private function prepare($string)
+	{
+		return trim(trim($string), $this->_separator);
+	}
+
+	/**
+	 * Writing data to a file
+	 * @param  array $data an array of strings
+	 * @return boolean     processed string
+	 */
+	private function write(array $data)
+	{
+		$res = file_put_contents($this->_file, $data, LOCK_EX);
+		return $res === false ? false : true;
 	}
 }
