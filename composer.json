@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "FlyString\\": "src"
+            "Visavi\\": "src"
         }
     },
     "minimum-stability": "stable"
