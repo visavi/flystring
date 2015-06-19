@@ -60,4 +60,4 @@ composer require visavi/flystring
 
 ### License
 
-The class is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/gpl-3.0.html)
+The class is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
