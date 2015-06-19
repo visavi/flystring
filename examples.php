@@ -1,6 +1,6 @@
 <?php
 
-include 'FlyString.php';
+include 'src/FlyString.php';
 
 // Pass the file name, separator (default |), and separator line endings default false
 $fly = new Visavi\FlyString('test.txt');

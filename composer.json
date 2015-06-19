@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Visavi\\flystring": "src/"
+            "Visavi\\Flystring": "src/"
         }
     },
     "minimum-stability": "stable"
