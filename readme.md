@@ -11,10 +11,11 @@ Basic useful feature list:
  * Adding and deleting rows
  * Shift, rotation, clear and moving strings
  * Verifying the existence and size of the output file
+ * Suitable for working with CSV format
 
 ```php
 <?php
-// Pass the file name, separator (default |), and separator line endings default false
+// Pass the file name and separator (default |)
 $fly = new Visavi\FlyString('test.txt', '|');
 
 // Checks the existence of the line returns true or false
@@ -49,6 +50,9 @@ $fly->shift(7, -1);
 
 // Deleting rows from a file, instead of an array can be passed an integer
 $string = $fly->delete([1, 2]);
+
+// Rewrites the entire file when the file does not exist, create it
+$fly->write('new file');
 
 // Displays formatted file size, such as 543B, 1.43kB
 $fly->filesize();

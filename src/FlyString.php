@@ -21,16 +21,10 @@ class FlyString {
 	 */
 	protected $_separator;
 
-	/**
-	 * @var boolean separator line endings
-	 */
-	protected $_end;
-
-	public function __construct($file, $separator = '|', $end = false)
+	public function __construct($file, $separator = '|')
 	{
 		$this->_file = $file;
 		$this->_separator = $separator;
-		$this->_end = $end;
 	}
 
 	/**
@@ -62,14 +56,13 @@ class FlyString {
 	 */
 	public function insert(array $data, $append = true)
 	{
-		$string = implode($this->_separator, $data);
-		$string .= $this->_end ? $this->_separator.PHP_EOL : PHP_EOL;
+		$string = implode($this->_separator, $data).PHP_EOL;
 
 		if ($append) {
 			$res = file_put_contents($this->_file, $string, FILE_APPEND | LOCK_EX);
 		} else {
 			$string .= file_get_contents($this->_file);
-			$res = file_put_contents($this->_file, $string, LOCK_EX);
+			$res = $this->write($string);
 		}
 
 		return $res === false ? false : true;
@@ -94,7 +87,7 @@ class FlyString {
 		}
 
 		if (isset($string)) {
-			return explode($this->_separator, $this->prepare($string));
+			return explode($this->_separator, trim($string));
 		}
 
 		return false;
@@ -117,7 +110,7 @@ class FlyString {
 			if (isset($string[$ceil]) && $string[$ceil] === $search) {
 
 				$data['line'] = $line;
-				$data['data'] = explode($this->_separator, $this->prepare($file[$line]));
+				$data['data'] = explode($this->_separator, trim($file[$line]));
 
 				return $data;
 			}
@@ -141,7 +134,7 @@ class FlyString {
 
 		if (isset($file[$line])) {
 
-			$string = explode($this->_separator, $this->prepare($file[$line]));
+			$string = explode($this->_separator, trim($file[$line]));
 
 			if (isset($string[$cell])) {
 				$string[$cell] = $value;
@@ -166,8 +159,7 @@ class FlyString {
 		$file = file($this->_file);
 
 		if (isset($file[$line])) {
-			$file[$line] = implode($this->_separator, $data);
-			$file[$line] .= $this->_end ? $this->_separator.PHP_EOL : PHP_EOL;
+			$file[$line] = implode($this->_separator, $data).PHP_EOL;
 
 			return $this->write($file);
 		}
@@ -253,6 +245,17 @@ class FlyString {
 	}
 
 	/**
+	 * Writing data to a file
+	 * @param  mixed $data an array or string
+	 * @return boolean     processed string
+	 */
+	public function write($data = '')
+	{
+		$res = file_put_contents($this->_file, $data, LOCK_EX);
+		return $res === false ? false : true;
+	}
+
+	/**
 	 * Formatted file size
 	 * @param  integer $decimals number of characters after the decimal point
 	 * @return string            formatted file size
@@ -280,27 +283,6 @@ class FlyString {
 	{
 		if ( ! $this->exists()) return false;
 
-		return $this->write([]);
-	}
-
-	/**
-	 * handles line removes extra characters and separator
-	 * @param  string $string raw string
-	 * @return string         processed string
-	 */
-	private function prepare($string)
-	{
-		return trim(trim($string), $this->_separator);
-	}
-
-	/**
-	 * Writing data to a file
-	 * @param  array $data an array of strings
-	 * @return boolean     processed string
-	 */
-	private function write(array $data)
-	{
-		$res = file_put_contents($this->_file, $data, LOCK_EX);
-		return $res === false ? false : true;
+		return $this->write();
 	}
 }
